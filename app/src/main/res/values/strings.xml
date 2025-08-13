@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Geluidsboete Checker NL</string>
+    <string-array name="vehicle_types">
+        <item>Auto</item>
+        <item>Motor</item>
+        <item>Brommer</item>
+    </string-array>
+</resources>

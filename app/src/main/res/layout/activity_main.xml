@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="20dp">
+
+    <Spinner
+        android:id="@+id/vehicleSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp" />
+
+    <TextView
+        android:id="@+id/dbValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 dB"
+        android:textSize="36sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/colorIndicator"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="30dp"
+        android:background="#00FF00" />
+
+    <Button
+        android:id="@+id/infoButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Boete Info"
+        android:layout_marginTop="30dp" />
+</LinearLayout>
