@@ -1,4 +1,4 @@
-package nl.jeoffrey.geluidsboetechecker
+package nl.jeoffrey.geluidsboetechecker.ui
 
 import android.os.Bundle
 import android.widget.TextView
