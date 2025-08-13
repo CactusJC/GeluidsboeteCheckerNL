@@ -1,5 +1,15 @@
 <resources>
     <string name="app_name">Geluidsboete Checker NL</string>
+    <string name="info_button_text">Boete Info</string>
+    <string name="info_text_content">
+        Geluidsboetes in Nederland (voorbeeld):\n
+        \n
+        <b>Auto:</b> max 70 dB (stilstaan), 90 dB (rijdend)\n
+        <b>Motor:</b> max 75 dB (stilstaan), 95 dB (rijdend)\n
+        <b>Brommer:</b> max 72 dB (stilstaan), 92 dB (rijdend)\n
+        \n
+        <i>Let op: dit zijn voorbeeldwaarden. Check altijd de actuele regels.</i>
+    </string>
     <string-array name="vehicle_types">
         <item>Auto</item>
         <item>Motor</item>

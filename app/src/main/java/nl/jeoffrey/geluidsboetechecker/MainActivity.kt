@@ -1,4 +1,4 @@
-package YOUR.PACKAGE.NAME   // <-- zet hier jouw package
+package nl.jeoffrey.geluidsboetechecker
 
 import android.Manifest
 import android.content.Intent
@@ -80,10 +80,15 @@ class MainActivity : AppCompatActivity() {
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
             setOutputFile("/dev/null")
-            prepare()
-            start()
+            try {
+                prepare()
+                start()
+                handler.post(updateTask)
+            } catch (e: java.io.IOException) {
+                Toast.makeText(this@MainActivity, "Kon microfoon niet starten. Is deze in gebruik?", Toast.LENGTH_LONG).show()
+                e.printStackTrace()
+            }
         }
-        handler.post(updateTask)
     }
 
     private fun getLimitsForVehicle(vehicle: String): Pair<Double, Double> {
