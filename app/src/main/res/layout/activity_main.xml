@@ -10,7 +10,8 @@
         android:id="@+id/vehicleSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="20dp"
+        android:entries="@array/vehicle_types" />
 
     <TextView
         android:id="@+id/dbValue"
@@ -31,6 +32,6 @@
         android:id="@+id/infoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Boete Info"
+        android:text="@string/info_button_text"
         android:layout_marginTop="30dp" />
 </LinearLayout>

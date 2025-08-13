@@ -16,14 +16,13 @@
         android:theme="@style/Theme.GeluidsboeteCheckerNL"
         tools:targetApi="31">
 
-        <!-- Info-scherm (nog te maken in code) -->
         <activity
-            android:name=".InfoActivity"
+            android:name=".ui.InfoActivity"
             android:exported="false" />
 
         <!-- Launcher activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.GeluidsboeteCheckerNL">
