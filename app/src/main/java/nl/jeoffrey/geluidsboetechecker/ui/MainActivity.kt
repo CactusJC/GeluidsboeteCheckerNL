@@ -7,9 +7,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Spinner
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -19,28 +16,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
-import nl.jeoffrey.geluidsboetechecker.R
+import nl.jeoffrey.geluidsboetechecker.data.VehicleType
+import nl.jeoffrey.geluidsboetechecker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbValue: TextView
-    private lateinit var colorIndicator: View
-    private lateinit var vehicleSpinner: Spinner
-    private lateinit var infoButton: Button
-
+    private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        dbValue = findViewById(R.id.dbValue)
-        colorIndicator = findViewById(R.id.colorIndicator)
-        vehicleSpinner = findViewById(R.id.vehicleSpinner)
-        infoButton = findViewById(R.id.infoButton)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setupSpinner()
-        infoButton.setOnClickListener {
+        binding.infoButton.setOnClickListener {
             startActivity(Intent(this, InfoActivity::class.java))
         }
 
@@ -49,14 +39,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSpinner() {
-        // This assumes vehicle_types is a string-array resource.
-        // The adapter is already created by the XML `android:entries` attribute.
-        vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            VehicleType.values().map { it.displayName }
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.vehicleSpinner.adapter = adapter
+
+        binding.vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                parent?.getItemAtPosition(position)?.toString()?.let {
-                    viewModel.onVehicleSelected(it)
-                }
+                val selectedVehicle = VehicleType.values()[position]
+                viewModel.onVehicleSelected(selectedVehicle)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
@@ -66,18 +62,15 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     // Update DB text
-                    dbValue.text = String.format("%.1f dB", state.dbLevel)
+                    binding.dbValue.text = String.format("%.1f dB", state.dbLevel)
 
                     // Update color indicator
-                    colorIndicator.setBackgroundColor(ContextCompat.getColor(this@MainActivity, state.indicatorColor))
+                    binding.colorIndicator.setBackgroundColor(ContextCompat.getColor(this@MainActivity, state.indicatorColor))
 
                     // Update spinner selection
-                    val adapter = vehicleSpinner.adapter as? ArrayAdapter<String>
-                    if (adapter != null) {
-                        val position = adapter.getPosition(state.currentVehicle)
-                        if (position != -1 && vehicleSpinner.selectedItemPosition != position) {
-                            vehicleSpinner.setSelection(position)
-                        }
+                    val position = state.currentVehicle.ordinal
+                    if (binding.vehicleSpinner.selectedItemPosition != position) {
+                        binding.vehicleSpinner.setSelection(position)
                     }
 
                     // Show error toast
@@ -106,7 +99,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestAudioPermission() {
         if (!hasAudioPermission()) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), AUDIO_PERMISSION_REQUEST_CODE)
         }
     }
 
@@ -116,12 +109,16 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
+        if (requestCode == AUDIO_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 viewModel.startMeasurement()
             } else {
                 Toast.makeText(this, "De microfoonpermissie is nodig om geluid te meten.", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    companion object {
+        private const val AUDIO_PERMISSION_REQUEST_CODE = 1
     }
 }
