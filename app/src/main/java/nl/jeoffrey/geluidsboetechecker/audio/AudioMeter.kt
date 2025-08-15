@@ -41,9 +41,23 @@ class AudioMeter {
     }
 
     fun stop() {
-        mediaRecorder?.apply {
-            stop()
-            release()
+        mediaRecorder?.let { recorder ->
+            try {
+                // stop() may throw IllegalStateException or RuntimeException on some devices
+                // if the recorder wasn't properly started or was already stopped.
+                recorder.stop()
+            } catch (e: IllegalStateException) {
+                // swallow IllegalStateException to avoid crashes; continue to release.
+                // Optional: log using android.util.Log if available.
+            } catch (e: RuntimeException) {
+                // Some devices may throw other runtime exceptions - swallow to avoid crashes.
+            } finally {
+                try {
+                    recorder.release()
+                } catch (ignored: Exception) {
+                    // Ignore release failures - resource cleanup best-effort
+                }
+            }
         }
         mediaRecorder = null
     }

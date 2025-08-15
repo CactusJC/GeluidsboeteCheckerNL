@@ -52,3 +52,5 @@ Verplaats deze limieten naar een externe bron:
 
 **Suggestie:**
 Verwijder dit commentaar. De `InfoActivity` is inmiddels geïmplementeerd, dus het commentaar is verouderd en kan voor verwarring zorgen.
+
+* fix/audio-stop-protection — Guard MediaRecorder.stop() and ViewModel stop call to avoid IllegalStateException/RuntimeException crashes on some devices.
