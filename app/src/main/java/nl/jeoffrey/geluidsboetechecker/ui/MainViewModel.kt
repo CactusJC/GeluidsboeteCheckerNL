@@ -59,7 +59,11 @@ class MainViewModel : ViewModel() {
 
     fun stopMeasurement() {
         measurementJob?.cancel()
-        audioMeter.stop()
+        try {
+            audioMeter.stop()
+        } catch (e: Exception) {
+            // Guard against any unexpected exceptions from the audio subsystem
+        }
         _uiState.value = _uiState.value.copy(isMeasuring = false)
     }
 
