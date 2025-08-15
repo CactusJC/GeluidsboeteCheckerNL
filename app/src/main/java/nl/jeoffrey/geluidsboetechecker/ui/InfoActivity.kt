@@ -1,15 +1,19 @@
 package nl.jeoffrey.geluidsboetechecker.ui
 
 import android.os.Bundle
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import nl.jeoffrey.geluidsboetechecker.R
+import nl.jeoffrey.geluidsboetechecker.databinding.ActivityInfoBinding
 
 class InfoActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityInfoBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_info)
+        binding = ActivityInfoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val infoText: TextView = findViewById(R.id.infoText)
-        infoText.setText(R.string.info_text_content)
+        binding.infoText.text = getString(R.string.info_text_content)
     }
 }

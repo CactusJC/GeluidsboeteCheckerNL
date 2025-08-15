@@ -1,20 +1,18 @@
 package nl.jeoffrey.geluidsboetechecker.audio
 
-import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
-import android.widget.Toast
 import kotlin.math.log10
 
-class AudioMeter(private val context: Context) {
+class AudioMeter {
 
     private var mediaRecorder: MediaRecorder? = null
 
-    fun start(): Boolean {
-        if (mediaRecorder != null) return true // Already running
+    fun start() {
+        if (mediaRecorder != null) return // Already running
 
         val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(context)
+            MediaRecorder()
         } else {
             @Suppress("DEPRECATION")
             MediaRecorder()
@@ -24,28 +22,22 @@ class AudioMeter(private val context: Context) {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-            setOutputFile("/dev/null")
+            setOutputFile(NULL_OUTPUT)
             try {
                 prepare()
                 start()
-                return true
-            } catch (e: java.io.IOException) {
-                Toast.makeText(context, "Kon microfoon niet starten. Is deze in gebruik?", Toast.LENGTH_LONG).show()
-                e.printStackTrace()
-                // Clean up
+            } catch (e: Exception) {
+                // Clean up and re-throw as a custom exception
                 release()
                 this@AudioMeter.mediaRecorder = null
-                return false
-            } catch (e: IllegalStateException) {
-                Toast.makeText(context, "Kon microfoon niet starten. Herstart de app.", Toast.LENGTH_LONG).show()
-                e.printStackTrace()
-                // Clean up
-                release()
-                this@AudioMeter.mediaRecorder = null
-                return false
+                when (e) {
+                    is java.io.IOException, is IllegalStateException -> {
+                        throw AudioMeterException("Failed to start MediaRecorder", e)
+                    }
+                    else -> throw e
+                }
             }
         }
-        return false // Should not be reached
     }
 
     fun stop() {
@@ -59,10 +51,19 @@ class AudioMeter(private val context: Context) {
     fun getDbLevel(): Double {
         val amplitude = mediaRecorder?.maxAmplitude ?: 0
         return if (amplitude > 0) {
-            // Formula to convert amplitude to dB. The constants can be calibrated.
-            20 * log10(amplitude.toDouble() / 32767.0) + 90
+            // Formula to convert amplitude to dB.
+            // MAX_AMPLITUDE is the maximum value for a 16-bit signed integer.
+            // The dB level is normalized and scaled to a more human-readable range.
+            REFERENCE_DB * log10(amplitude.toDouble() / MAX_AMPLITUDE) + DB_OFFSET
         } else {
             0.0
         }
+    }
+
+    companion object {
+        private const val NULL_OUTPUT = "/dev/null"
+        private const val REFERENCE_DB = 20.0
+        private const val MAX_AMPLITUDE = 32767.0
+        private const val DB_OFFSET = 90.0
     }
 }
