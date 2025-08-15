@@ -1,7 +1,6 @@
 package nl.jeoffrey.geluidsboetechecker.ui
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,53 +10,60 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import nl.jeoffrey.geluidsboetechecker.R
 import nl.jeoffrey.geluidsboetechecker.audio.AudioMeter
+import nl.jeoffrey.geluidsboetechecker.audio.AudioMeterException
 import nl.jeoffrey.geluidsboetechecker.data.VehicleLimits
+import nl.jeoffrey.geluidsboetechecker.data.VehicleType
 
 data class UiState(
     val dbLevel: Double = 0.0,
     val indicatorColor: Int = R.color.indicator_green,
-    val currentVehicle: String = "Auto",
+    val currentVehicle: VehicleType = VehicleType.CAR,
     val isMeasuring: Boolean = false,
     val errorMessage: String? = null
 )
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel : ViewModel() {
 
-    private val audioMeter = AudioMeter(application)
+    private val audioMeter = AudioMeter()
     private var measurementJob: Job? = null
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
-    fun onVehicleSelected(vehicle: String) {
-        _uiState.value = _uiState.value.copy(currentVehicle = vehicle)
+    fun onVehicleSelected(vehicleType: VehicleType) {
+        _uiState.value = _uiState.value.copy(currentVehicle = vehicleType)
         updateColorIndicator()
     }
 
     fun startMeasurement() {
         if (measurementJob?.isActive == true) return
 
-        if (audioMeter.start()) {
+        try {
+            audioMeter.start()
             _uiState.value = _uiState.value.copy(isMeasuring = true, errorMessage = null)
             measurementJob = viewModelScope.launch {
                 while (isActive) {
                     val dB = audioMeter.getDbLevel()
                     _uiState.value = _uiState.value.copy(dbLevel = dB)
                     updateColorIndicator()
-                    delay(500)
+                    delay(MEASUREMENT_INTERVAL_MS)
                 }
             }
-        } else {
+        } catch (e: AudioMeterException) {
             _uiState.value = _uiState.value.copy(
                 isMeasuring = false,
-                errorMessage = "Kon audiometer niet starten."
+                errorMessage = "Kon de microfoon niet starten. Is deze misschien in gebruik door een andere app?"
             )
         }
     }
 
     fun stopMeasurement() {
         measurementJob?.cancel()
-        audioMeter.stop()
+        try {
+            audioMeter.stop()
+        } catch (e: Exception) {
+            // Guard against any unexpected exceptions from the audio subsystem
+        }
         _uiState.value = _uiState.value.copy(isMeasuring = false)
     }
 
@@ -79,5 +85,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         stopMeasurement()
+    }
+
+    companion object {
+        private const val MEASUREMENT_INTERVAL_MS = 500L
     }
 }
