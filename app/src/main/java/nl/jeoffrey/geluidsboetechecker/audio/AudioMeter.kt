@@ -2,6 +2,7 @@ package nl.jeoffrey.geluidsboetechecker.audio
 
 import android.content.Context
 import android.media.MediaRecorder
+import android.os.Build
 import android.widget.Toast
 import kotlin.math.log10
 
@@ -12,7 +13,14 @@ class AudioMeter(private val context: Context) {
     fun start(): Boolean {
         if (mediaRecorder != null) return true // Already running
 
-        mediaRecorder = MediaRecorder(context).apply {
+        val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            MediaRecorder(context)
+        } else {
+            @Suppress("DEPRECATION")
+            MediaRecorder()
+        }
+
+        mediaRecorder = recorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
