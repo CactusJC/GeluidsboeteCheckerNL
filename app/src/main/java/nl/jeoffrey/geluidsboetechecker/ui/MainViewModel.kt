@@ -22,9 +22,9 @@ data class UiState(
     val errorMessage: String? = null
 )
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val audioMeter: AudioMeter) : ViewModel() {
 
-    private val audioMeter = AudioMeter()
+    constructor() : this(AudioMeter())
     private var measurementJob: Job? = null
 
     private val _uiState = MutableStateFlow(UiState())

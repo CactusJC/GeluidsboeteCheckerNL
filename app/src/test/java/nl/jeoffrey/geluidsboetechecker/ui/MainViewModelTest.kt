@@ -35,12 +35,7 @@ class MainViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         audioMeter = mock()
-        viewModel = MainViewModel()
-        // This is a bit of a hack, but since audioMeter is private, we use reflection to inject the mock.
-        // A better solution would be to use dependency injection.
-        val audioMeterField = viewModel::class.java.getDeclaredField("audioMeter")
-        audioMeterField.isAccessible = true
-        audioMeterField.set(viewModel, audioMeter)
+        viewModel = MainViewModel(audioMeter)
     }
 
     @After
