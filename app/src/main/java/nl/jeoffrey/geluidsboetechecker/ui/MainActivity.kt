@@ -42,14 +42,14 @@ class MainActivity : AppCompatActivity() {
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
-            VehicleType.entries.map { it.displayName }
+            VehicleType.values().map { it.displayName }
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.vehicleSpinner.adapter = adapter
 
         binding.vehicleSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedVehicle = VehicleType.entries[position]
+                val selectedVehicle = VehicleType.values()[position]
                 viewModel.onVehicleSelected(selectedVehicle)
             }
 

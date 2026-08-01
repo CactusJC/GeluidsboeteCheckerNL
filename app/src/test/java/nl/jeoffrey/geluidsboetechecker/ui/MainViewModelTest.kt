@@ -35,7 +35,7 @@ class MainViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         audioMeter = mock()
-        viewModel = MainViewModel(mock(), audioMeter)
+        viewModel = MainViewModel(audioMeter)
     }
 
     @After

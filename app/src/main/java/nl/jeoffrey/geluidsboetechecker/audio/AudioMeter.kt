@@ -1,11 +1,10 @@
 package nl.jeoffrey.geluidsboetechecker.audio
 
-import android.content.Context
 import android.media.MediaRecorder
 import android.os.Build
 import kotlin.math.log10
 
-class AudioMeter(private val context: Context) {
+class AudioMeter {
 
     private var mediaRecorder: MediaRecorder? = null
 
@@ -13,28 +12,31 @@ class AudioMeter(private val context: Context) {
         if (mediaRecorder != null) return // Already running
 
         val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            MediaRecorder(context)
+            MediaRecorder()
         } else {
             @Suppress("DEPRECATION")
             MediaRecorder()
         }
 
-        try {
-            recorder.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                setOutputFile(NULL_OUTPUT)
+        mediaRecorder = recorder.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            setOutputFile(NULL_OUTPUT)
+            try {
                 prepare()
                 start()
+            } catch (e: Exception) {
+                // Clean up and re-throw as a custom exception
+                release()
+                this@AudioMeter.mediaRecorder = null
+                when (e) {
+                    is java.io.IOException, is IllegalStateException -> {
+                        throw AudioMeterException("Failed to start MediaRecorder", e)
+                    }
+                    else -> throw e
+                }
             }
-            mediaRecorder = recorder
-        } catch (e: Exception) {
-            try {
-                recorder.release()
-            } catch (ignored: Exception) {}
-            mediaRecorder = null
-            throw AudioMeterException("Failed to start MediaRecorder", e)
         }
     }
 
