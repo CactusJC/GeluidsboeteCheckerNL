@@ -54,10 +54,12 @@ class MainViewModelTest {
         whenever(audioMeter.getDbLevel()).thenReturn(50.0)
 
         viewModel.startMeasurement()
-        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
 
         assertEquals(true, viewModel.uiState.value.isMeasuring)
         assertEquals(50.0, viewModel.uiState.value.dbLevel, 0.0)
+
+        viewModel.stopMeasurement()
     }
 
     @Test
@@ -73,7 +75,7 @@ class MainViewModelTest {
     @Test
     fun `stopMeasurement updates uiState`() = runTest {
         viewModel.startMeasurement()
-        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
         viewModel.stopMeasurement()
 
         assertEquals(false, viewModel.uiState.value.isMeasuring)
