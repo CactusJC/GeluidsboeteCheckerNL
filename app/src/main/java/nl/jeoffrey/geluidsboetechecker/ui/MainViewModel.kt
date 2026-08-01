@@ -1,6 +1,7 @@
 package nl.jeoffrey.geluidsboetechecker.ui
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,9 +23,9 @@ data class UiState(
     val errorMessage: String? = null
 )
 
-class MainViewModel(private val audioMeter: AudioMeter) : ViewModel() {
+class MainViewModel(application: Application, private val audioMeter: AudioMeter) : AndroidViewModel(application) {
 
-    constructor() : this(AudioMeter())
+    constructor(application: Application) : this(application, AudioMeter(application))
     private var measurementJob: Job? = null
 
     private val _uiState = MutableStateFlow(UiState())
