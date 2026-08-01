@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "nl.jeoffrey.geluidsboetechecker"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "nl.jeoffrey.geluidsboetechecker"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -41,6 +41,10 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
+}
+
+tasks.withType<Test> {
+    maxHeapSize = "1024m"
 }
 
 dependencies {
