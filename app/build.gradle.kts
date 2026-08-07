@@ -41,6 +41,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
+    testOptions {
+        unitTests.all {
+            it.maxHeapSize = "2048m"
+        }
+    }
 }
 
 tasks.withType<Test> {
